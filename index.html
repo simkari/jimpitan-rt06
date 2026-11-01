@@ -6,11 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jimpitan RT 06</title>
 
-    <!-- PWA Setup -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00796b">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
     <!-- Materialize CSS & Google Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -275,7 +270,6 @@
                     </div>
 
                     <div class="progress-bar-custom" id="grafik-bar">
-                        <!-- Default kosong, diisi oleh JS -->
                         <div class="progress-segment" style="width: 100%; background-color: #e0e0e0;"></div>
                     </div>
 
@@ -293,7 +287,7 @@
                 <div class="form-container">
                     <form id="formJimpitan">
 
-                        <!-- Select Dawis (Native / Browser-Default) -->
+                        <!-- Select Dawis -->
                         <div class="input-field" style="margin-bottom: 2rem;">
                             <label style="position: relative; top: -20px; font-size: 0.9rem; color: #00796b;">Pilih
                                 Dawis</label>
@@ -307,7 +301,7 @@
                             </select>
                         </div>
 
-                        <!-- Select Nama Warga (Native / Browser-Default) -->
+                        <!-- Select Nama Warga -->
                         <div class="input-field" style="margin-bottom: 2rem;">
                             <label style="position: relative; top: -20px; font-size: 0.9rem; color: #00796b;">Pilih Nama
                                 Warga</label>
@@ -318,7 +312,7 @@
                             </select>
                         </div>
 
-                        <!-- Input Tanggal (Native / Browser-Default) -->
+                        <!-- Input Tanggal -->
                         <div class="input-field" style="margin-bottom: 2rem;">
                             <label style="position: relative; top: -20px; font-size: 0.9rem; color: #00796b;">Tanggal
                                 Setoran</label>
@@ -355,7 +349,7 @@
                 </div>
             </div>
         </div>
-    </div> <!-- Akhir dari #main-app -->
+    </div>
 
     <!-- ============================================== -->
     <!-- MODAL POP-UP AREA                              -->
@@ -427,35 +421,25 @@
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-    <!-- PWA Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker berhasil didaftarkan'))
-                    .catch(err => console.log('Service Worker gagal', err));
-            });
-        }
-    </script>
-
     <script>
         // =======================================================
         // KONFIGURASI KEAMANAN & API
         // =======================================================
-        const PIN_RAHASIA = "0607"; // <-- GANTI PIN DI SINI
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec"; // <-- PASTIKAN INI DIISI
+        const PIN_RAHASIA = "0607";
 
-        // Variabel global untuk menyimpan data sementara (untuk dikirim ke WA)
+        // =======================================================
+        // WAJIB DIGANTI: Tempel URL Web App Google Script Anda di bawah ini
+        // =======================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
+
         let dataRekapBulanIni = { global: 0, d1: 0, d2: 0, d3: 0 };
         let dataLaporanDawisTerkini = [];
         let namaDawisTerkini = "";
         let totalDawisTerkini = 0;
 
         document.addEventListener('DOMContentLoaded', function () {
-            // HANYA inisialisasi Modal. Form Select tidak diinisialisasi karena menggunakan browser-default
             M.Modal.init(document.querySelectorAll('.modal'));
 
-            // Generate opsi tanggal (HANYA Hari Ini dan Kemarin)
             const selectTanggal = document.getElementById('select-tanggal');
             selectTanggal.innerHTML = '<option value="" disabled>Tanggal Setoran</option>';
 
@@ -473,13 +457,11 @@
             let optHariIni = document.createElement('option');
             optHariIni.value = tglHariIni;
             optHariIni.text = `${tglHariIni} (Hari Ini)`;
-            optHariIni.selected = true; // Setel sebagai default terpilih
+            optHariIni.selected = true;
             selectTanggal.appendChild(optHariIni);
 
-            // Fokus otomatis ke form PIN saat web dibuka
             setTimeout(() => { document.getElementById('input-pin').focus(); }, 500);
 
-            // Eksekusi klik tombol "Masuk" jika user menekan Enter
             document.getElementById('input-pin').addEventListener("keypress", function (event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
@@ -488,27 +470,23 @@
             });
         });
 
-        // FUNGSI CEK PIN
         function cekPIN() {
             const inputPIN = document.getElementById('input-pin').value;
-
             if (inputPIN === PIN_RAHASIA) {
                 document.getElementById('pin-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 M.toast({ html: 'Akses Diberikan', classes: 'green rounded' });
-                muatRekapBulanan(); // Muat grafik setelah login
+                muatRekapBulanan();
             } else {
                 M.toast({ html: 'PIN Salah! Akses Ditolak.', classes: 'red rounded' });
                 document.getElementById('input-pin').value = '';
             }
         }
 
-        // FUNGSI UTILITIES
         function showLoading() { document.getElementById('loading-overlay').style.display = 'flex'; }
         function hideLoading() { document.getElementById('loading-overlay').style.display = 'none'; }
         function formatRupiah(angka) { return new Intl.NumberFormat('id-ID').format(angka); }
 
-        // EVENT: Ambil Daftar Nama Warga Saat Grup Dawis Dipilih
         document.getElementById('select-dawis').addEventListener('change', function () {
             const dawis = this.value;
             const selectNama = document.getElementById('select-nama');
@@ -527,7 +505,7 @@
                             option.value = nama; option.text = nama;
                             selectNama.appendChild(option);
                         });
-                        selectNama.disabled = false; // Aktifkan kembali select
+                        selectNama.disabled = false;
                     } else { M.toast({ html: 'Tidak ada data warga ditemukan.' }); }
                 })
                 .catch(error => {
@@ -536,7 +514,6 @@
                 });
         });
 
-        // EVENT: Submit Form Simpan Data (Dengan Fitur Konfirmasi Edit)
         document.getElementById('formJimpitan').addEventListener('submit', function (e) {
             e.preventDefault();
             const dawis = document.getElementById('select-dawis').value;
@@ -545,15 +522,11 @@
             const nominal = document.getElementById('input-nominal').value;
 
             if (!dawis || !nama || !tanggal || !nominal) return M.toast({ html: 'Harap lengkapi semua data!' });
-
-            // Pengiriman normal (bukan force update)
             simpanDataJimpitan(dawis, nama, tanggal, nominal, false);
         });
 
-        // FUNGSI KHUSUS: Mengirim data dengan opsi Force Update (Timpa Data)
         function simpanDataJimpitan(dawis, nama, tanggal, nominal, isForceUpdate) {
             showLoading();
-
             let url = `${SCRIPT_URL}?dawis=${encodeURIComponent(dawis)}&nama=${encodeURIComponent(nama)}&tanggal=${tanggal}&nominal=${nominal}`;
             if (isForceUpdate) { url += `&force_update=true`; }
 
@@ -561,20 +534,16 @@
                 .then(response => response.json())
                 .then(res => {
                     hideLoading();
-
                     if (res.status === 'success') {
                         let pesanSukses = isForceUpdate ? 'Data berhasil ditimpa!' : 'Data berhasil disimpan!';
                         M.toast({ html: pesanSukses, classes: 'green' });
-
                         document.getElementById('input-nominal').value = '';
-                        M.updateTextFields();
-                        muatRekapBulanan(); // Perbarui grafik seketika
+                        muatRekapBulanan();
                     } else {
-                        // Jika ada penolakan dari GAS karena data sudah ada
                         if (res.message && res.message.includes("sudah membayar")) {
                             let konfirmasi = confirm(`Data untuk ${nama} pada tanggal ${tanggal} SUDAH ADA.\n\nApakah Anda yakin ingin menimpa data lamanya menjadi Rp${formatRupiah(nominal)}?`);
                             if (konfirmasi) {
-                                simpanDataJimpitan(dawis, nama, tanggal, nominal, true); // Paksa update
+                                simpanDataJimpitan(dawis, nama, tanggal, nominal, true);
                             } else {
                                 M.toast({ html: 'Pembaruan data dibatalkan.' });
                             }
@@ -589,7 +558,6 @@
                 });
         }
 
-        // FUNGSI: Memperbarui Grafik di Halaman Utama
         function muatRekapBulanan() {
             fetch(`${SCRIPT_URL}?action=get_rekap_bulanan`)
                 .then(response => response.json())
@@ -620,7 +588,6 @@
                 .catch(err => console.error(err));
         }
 
-        // FUNGSI: Menampilkan Modal "Rekap Bulanan"
         function rekapBulanan() {
             showLoading();
             fetch(`${SCRIPT_URL}?action=get_rekap_bulanan`)
@@ -645,7 +612,6 @@
                 .catch(error => { hideLoading(); M.toast({ html: 'Kesalahan jaringan', classes: 'red' }); });
         }
 
-        // FUNGSI: Mengirim Rekap Bulanan ke WA
         function bagikanRekapWA() {
             if (dataRekapBulanIni.global === 0) return M.toast({ html: 'Belum ada setoran.' });
             const namaBulan = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
@@ -653,7 +619,6 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
         }
 
-        // FUNGSI: Menampilkan Modal "Laporan Warga Per Dawis"
         function laporanPerDawis() {
             const dawis = document.getElementById('select-dawis').value;
             if (!dawis) return M.toast({ html: 'Silakan pilih Grup Dawis di form terlebih dahulu!', classes: 'rounded red' });
@@ -694,10 +659,8 @@
                 .catch(error => { hideLoading(); M.toast({ html: 'Terjadi kesalahan jaringan', classes: 'red' }); });
         }
 
-        // FUNGSI: Mengirim Laporan Warga Per Dawis ke WA
         function bagikanLaporanDawisWA() {
             if (dataLaporanDawisTerkini.length === 0) return M.toast({ html: 'Belum ada data untuk dibagikan.' });
-
             const namaBulan = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
             let teks = `*Laporan ${namaDawisTerkini}*\nTotal Jimpitan ${namaDawisTerkini} Bulan ${namaBulan} :\n\n`;
 
