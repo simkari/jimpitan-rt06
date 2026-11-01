@@ -1,241 +1,91 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jimpitan RT 06</title>
-    <!-- Materialize CSS untuk gaya desain -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f5f5f5;
-            margin: 0;
-        }
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00796b">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
+    <!-- Materialize CSS & Google Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        body { background-color: #f5f5f5; margin: 0; }
+        
         /* ========================================= */
         /* STYLING LAYAR LOGIN PIN                   */
         /* ========================================= */
         #pin-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #00796b;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; height: 100vh; background-color: #00796b; 
+            padding: 20px; position: fixed; top: 0; left: 0; width: 100%; z-index: 999;
         }
-
         .login-card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: white; padding: 40px 30px; border-radius: 12px; 
+            width: 100%; max-width: 360px; text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-
-        /* Mengubah font input PIN agar seperti password yang berjarak */
         #input-pin {
-            text-align: center;
-            font-size: 2rem;
-            letter-spacing: 15px;
-            font-weight: bold;
-            color: #00796b;
+            text-align: center; font-size: 2rem; letter-spacing: 15px; 
+            font-weight: bold; color: #00796b;
         }
 
         /* ========================================= */
         /* STYLING APLIKASI UTAMA                    */
         /* ========================================= */
-        .header-bg {
-            background-color: #00796b;
-            color: white;
-            padding: 20px 15px;
-            margin-bottom: -40px;
-        }
-
-        .header-bg h5 {
-            margin: 0;
-            font-weight: bold;
-        }
-
-        .header-bg p {
-            margin: 5px 0 0 0;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .main-card {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
+        .header-bg { background-color: #00796b; color: white; padding: 20px 15px; margin-bottom: -40px; }
+        .header-bg h5 { margin: 0; font-weight: bold; }
+        .header-bg p { margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9; }
+        .main-card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
         /* Grafik Setoran */
-        .grafik-container {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .grafik-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .grafik-title {
-            font-weight: bold;
-            color: #00796b;
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        .grafik-total {
-            font-size: 0.9rem;
-            color: #555;
-            font-weight: 500;
-        }
-
+        .grafik-container { padding: 15px; border-bottom: 1px solid #eee; }
+        .grafik-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .grafik-title { font-weight: bold; color: #00796b; margin: 0; font-size: 1rem; }
+        .grafik-total { font-size: 0.9rem; color: #555; font-weight: 500; }
         .progress-bar-custom {
-            height: 12px;
-            border-radius: 6px;
-            display: flex;
-            overflow: hidden;
-            background-color: #e0e0e0;
-            margin-bottom: 10px;
+            height: 12px; border-radius: 6px; display: flex; overflow: hidden;
+            background-color: #e0e0e0; margin-bottom: 10px;
         }
-
-        .progress-segment {
-            height: 100%;
-        }
-
-        .legend-container {
-            display: flex;
-            justify-content: space-around;
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .legend-color {
-            width: 8px;
-            height: 8px;
-            display: inline-block;
-            margin-right: 5px;
-        }
-
+        .progress-segment { height: 100%; }
+        .legend-container { display: flex; justify-content: space-around; font-size: 0.75rem; color: #666; }
+        .legend-item { display: flex; align-items: center; }
+        .legend-color { width: 8px; height: 8px; display: inline-block; margin-right: 5px; }
+        
         /* Form Styling */
-        .form-container {
-            padding: 20px;
-        }
-
-        .input-field {
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        input[type=number]:focus+label,
-        input[type=password]:focus+label,
-        input[type=number]:focus~.material-icons {
-            color: #00796b !important;
-        }
-
-        input[type=number]:focus,
-        input[type=password]:focus {
-            border-bottom: 1px solid #00796b !important;
-            box-shadow: 0 1px 0 0 #00796b !important;
-        }
-
-        .dropdown-content li>a,
-        .dropdown-content li>span {
-            color: #333;
-        }
-
-        .select-wrapper input.select-dropdown:focus {
-            border-bottom: 1px solid #00796b;
-        }
-
+        .form-container { padding: 20px; }
+        .input-field { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        input[type=number]:focus + label, input[type=password]:focus + label,
+        input[type=number]:focus ~ .material-icons { color: #00796b !important; }
+        input[type=number]:focus, input[type=password]:focus { border-bottom: 1px solid #00796b !important; box-shadow: 0 1px 0 0 #00796b !important; }
+        
         /* Tombol */
         .btn-custom {
-            background-color: #00796b;
-            width: 100%;
-            height: 48px;
-            line-height: 48px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            background-color: #00796b; width: 100%; height: 48px; line-height: 48px;
+            border-radius: 8px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
-
-        .btn-custom:hover {
-            background-color: #00695c;
-        }
-
-        .btn-outline {
-            background-color: #f5f5f5;
-            color: #00796b;
-            border: 1px solid #e0e0e0;
-            box-shadow: none;
-        }
-
-        .btn-outline:hover {
-            background-color: #eeeeee;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-group .btn-custom {
-            margin-bottom: 0;
-        }
-
+        .btn-custom:hover { background-color: #00695c; }
+        .btn-outline { background-color: #f5f5f5; color: #00796b; border: 1px solid #e0e0e0; box-shadow: none; }
+        .btn-outline:hover { background-color: #eeeeee; }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-group .btn-custom { margin-bottom: 0; }
+        
         /* Loading Overlay */
         #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); display: flex; justify-content: center;
+            align-items: center; z-index: 99999; display: none;
         }
-
-        .loading-card {
-            background: white;
-            padding: 20px 40px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .loading-text {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #333;
-        }
+        .loading-card { background: white; padding: 20px 40px; border-radius: 12px; text-align: center; }
+        .loading-text { margin-top: 15px; font-weight: bold; color: #333; }
     </style>
 </head>
-
 <body>
 
     <!-- ============================================== -->
@@ -246,12 +96,12 @@
             <i class="material-icons" style="font-size: 4rem; color: #00796b;">lock</i>
             <h5 style="font-weight: bold; color: #333; margin-top: 10px;">Akses Petugas</h5>
             <p style="color: #757575; margin-bottom: 30px;">Masukkan PIN aplikasi jimpitan</p>
-
+            
             <div class="input-field" style="margin-bottom: 40px;">
                 <input id="input-pin" type="password" inputmode="numeric" class="validate" required>
                 <label for="input-pin">PIN Rahasia</label>
             </div>
-
+            
             <button class="btn waves-effect waves-light btn-custom" onclick="cekPIN()">MASUK</button>
         </div>
     </div>
@@ -260,7 +110,7 @@
     <!-- APLIKASI UTAMA (Disembunyikan secara default)  -->
     <!-- ============================================== -->
     <div id="main-app" style="display: none;">
-
+        
         <!-- Header Area -->
         <div class="header-bg">
             <h5>Jimpitan RT 06</h5>
@@ -269,7 +119,7 @@
 
         <!-- Main Container -->
         <div class="container" style="position: relative; z-index: 1;">
-
+            
             <!-- Card 1: Grafik Setoran -->
             <div class="card main-card">
                 <div class="grafik-container">
@@ -277,434 +127,12 @@
                         <p class="grafik-title">Grafik Setoran</p>
                         <p class="grafik-total" id="teks-total-global">Total : Rp0</p>
                     </div>
-
+                    
                     <div class="progress-bar-custom" id="grafik-bar">
                         <!-- Default kosong, diisi oleh JS -->
                         <div class="progress-segment" style="width: 100%; background-color: #e0e0e0;"></div>
                     </div>
-
+                    
                     <div class="legend-container">
-                        <div class="legend-item"><span class="legend-color"
-                                style="background-color: #2196F3;"></span><span id="teks-d1">D1 (0)</span></div>
-                        <div class="legend-item"><span class="legend-color"
-                                style="background-color: #4CAF50;"></span><span id="teks-d2">D2 (0)</span></div>
-                        <div class="legend-item"><span class="legend-color"
-                                style="background-color: #FF9800;"></span><span id="teks-d3">D3 (0)</span></div>
-                    </div>
-                </div>
-
-                <!-- Form Input Area -->
-                <div class="form-container">
-                    <form id="formJimpitan">
-                        <!-- Select Dawis -->
-                        <div class="input-field">
-                            <select id="select-dawis" name="dawis" required>
-                                <option value="" disabled selected>Pilih Dawis</option>
-                                <option value="DAWIS 1">DAWIS 1</option>
-                                <option value="DAWIS 2">DAWIS 2</option>
-                                <option value="DAWIS 3">DAWIS 3</option>
-                            </select>
-                        </div>
-
-                        <!-- Select Nama Warga -->
-                        <div class="input-field">
-                            <select id="select-nama" name="nama" required disabled>
-                                <option value="" disabled selected>Pilih Nama Warga</option>
-                            </select>
-                        </div>
-
-                        <!-- Input Tanggal (Hari Ini & Kemarin Saja) -->
-                        <div class="input-field">
-                            <i class="material-icons prefix" style="color: #9e9e9e;">date_range</i>
-                            <select id="select-tanggal" name="tanggal" required>
-                                <option value="" disabled selected>Tanggal Setoran</option>
-                            </select>
-                        </div>
-
-                        <!-- Input Nominal -->
-                        <div class="input-field">
-                            <input id="input-nominal" type="number" name="nominal" class="validate" required>
-                            <label for="input-nominal">Nominal Jimpitan (Rp)</label>
-                        </div>
-
-                        <!-- Tombol Aksi -->
-                        <button type="submit" class="btn waves-effect waves-light btn-custom">SIMPAN DATA</button>
-
-                        <button type="button" class="btn waves-effect waves-light btn-custom btn-outline"
-                            onclick="window.location.href='lihat_data.html'">LIHAT DATA</button>
-
-                        <div class="btn-group">
-                            <button type="button" class="btn waves-effect waves-light btn-custom btn-outline"
-                                style="font-size: 0.8rem;" onclick="rekapBulanan()">REKAP BULANAN</button>
-                            <button type="button" class="btn waves-effect waves-light btn-custom btn-outline"
-                                style="font-size: 0.8rem;" onclick="window.location.href='cek_status.html'">CEK STATUS
-                                WARGA</button>
-                        </div>
-
-                        <button type="button" class="btn waves-effect waves-light btn-custom btn-outline"
-                            onclick="laporanPerDawis()">LAPORAN WARGA PER DAWIS</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    </div> <!-- Akhir dari #main-app -->
-
-    <!-- ============================================== -->
-    <!-- MODAL POP-UP AREA                              -->
-    <!-- ============================================== -->
-
-    <!-- Modal Rekap Bulanan -->
-    <div id="modal-rekap" class="modal" style="border-radius: 12px; max-width: 90%; width: 400px;">
-        <div class="modal-content">
-            <h5 style="font-weight: bold; margin-top: 0; margin-bottom: 20px;">Rekap Jimpitan Bulan Ini</h5>
-            <p style="font-size: 1.1rem; margin-bottom: 15px;">Total Global: <span id="rekap-modal-global"
-                    style="font-weight: bold;">Rp0</span></p>
-            <div style="font-size: 1rem; color: #333; line-height: 1.8;">
-                Total Dawis 1: <span id="rekap-modal-d1">Rp0</span><br>
-                Total Dawis 2: <span id="rekap-modal-d2">Rp0</span><br>
-                Total Dawis 3: <span id="rekap-modal-d3">Rp0</span>
-            </div>
-        </div>
-        <div class="modal-footer" style="padding-right: 15px;">
-            <a href="#!" class="modal-close btn-flat" style="font-weight: bold; color: #00796b;">TUTUP</a>
-            <a href="#!" class="btn-flat" style="font-weight: bold; color: #00796b;" onclick="bagikanRekapWA()">KIRIM KE
-                WA</a>
-        </div>
-    </div>
-
-    <!-- Modal Laporan Per Dawis -->
-    <div id="modal-laporan-dawis" class="modal"
-        style="border-radius: 12px; max-width: 90%; width: 400px; max-height: 80%;">
-        <div class="modal-content">
-            <h5 id="judul-laporan-dawis" style="font-weight: bold; margin-top: 0; margin-bottom: 10px;">Laporan DAWIS
-            </h5>
-            <p id="subjudul-laporan-dawis" style="font-size: 1rem; margin-bottom: 20px;">Total Jimpitan DAWIS Bulan Ini
-                :</p>
-
-            <div id="konten-laporan-dawis"
-                style="font-size: 1rem; color: #333; line-height: 1.6; max-height: 40vh; overflow-y: auto;">
-                <!-- Daftar warga akan dimasukkan di sini oleh JS -->
-            </div>
-
-            <p style="font-size: 1.1rem; font-weight: bold; margin-top: 20px;">Total = <span
-                    id="total-laporan-dawis">Rp0</span></p>
-        </div>
-        <div class="modal-footer" style="padding-right: 15px;">
-            <a href="#!" class="modal-close btn-flat" style="font-weight: bold; color: #00796b;">TUTUP</a>
-            <a href="#!" class="btn-flat" style="font-weight: bold; color: #00796b;"
-                onclick="bagikanLaporanDawisWA()">KIRIM KE WA</a>
-        </div>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="loading-card">
-            <div class="preloader-wrapper big active">
-                <div class="spinner-layer spinner-teal-only" style="border-color: #00796b;">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-            </div>
-            <p class="loading-text">Mohon tunggu...</p>
-        </div>
-    </div>
-
-    <!-- Materialize JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-    <script>
-        // =======================================================
-        // KONFIGURASI KEAMANAN & API
-        // =======================================================
-        const PIN_RAHASIA = "0607"; // <-- GANTI PIN DI SINI JIKA INGIN DIUBAH
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
-
-        // Variabel global untuk menyimpan data sementara (untuk dikirim ke WA)
-        let dataRekapBulanIni = { global: 0, d1: 0, d2: 0, d3: 0 };
-        let dataLaporanDawisTerkini = [];
-        let namaDawisTerkini = "";
-        let totalDawisTerkini = 0;
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Inisialisasi Elemen Form & Modal Materialize
-            M.FormSelect.init(document.querySelectorAll('select'));
-            M.Modal.init(document.querySelectorAll('.modal'));
-
-            // Generate opsi tanggal (HANYA Hari Ini dan Kemarin)
-            const selectTanggal = document.getElementById('select-tanggal');
-            selectTanggal.innerHTML = '<option value="" disabled>Tanggal Setoran</option>';
-
-            const hariIni = new Date();
-            const tglHariIni = hariIni.getDate();
-            const kemarin = new Date(hariIni);
-            kemarin.setDate(hariIni.getDate() - 1);
-            const tglKemarin = kemarin.getDate();
-
-            let optKemarin = document.createElement('option');
-            optKemarin.value = tglKemarin;
-            optKemarin.text = `${tglKemarin} (Kemarin)`;
-            selectTanggal.appendChild(optKemarin);
-
-            let optHariIni = document.createElement('option');
-            optHariIni.value = tglHariIni;
-            optHariIni.text = `${tglHariIni} (Hari Ini)`;
-            optHariIni.selected = true; // Setel sebagai default terpilih
-            selectTanggal.appendChild(optHariIni);
-
-            M.FormSelect.init(selectTanggal);
-
-            // Fokus otomatis ke form PIN saat web dibuka
-            setTimeout(() => { document.getElementById('input-pin').focus(); }, 500);
-
-            // Eksekusi klik tombol "Masuk" jika user menekan Enter di keyboard/HP
-            document.getElementById('input-pin').addEventListener("keypress", function (event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    cekPIN();
-                }
-            });
-        });
-
-        // FUNGSI CEK PIN
-        function cekPIN() {
-            const inputPIN = document.getElementById('input-pin').value;
-
-            if (inputPIN === PIN_RAHASIA) {
-                // PIN Benar: Sembunyikan layar login, tampilkan aplikasi utama
-                document.getElementById('pin-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                M.toast({ html: 'Akses Diberikan', classes: 'green rounded' });
-
-                // Baru muat data grafik setelah masuk aplikasi agar terasa lebih cepat di awal
-                muatRekapBulanan();
-            } else {
-                // PIN Salah
-                M.toast({ html: 'PIN Salah! Akses Ditolak.', classes: 'red rounded' });
-                document.getElementById('input-pin').value = ''; // Kosongkan form
-            }
-        }
-
-        // FUNGSI UTILITIES
-        function showLoading() { document.getElementById('loading-overlay').style.display = 'flex'; }
-        function hideLoading() { document.getElementById('loading-overlay').style.display = 'none'; }
-        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID').format(angka); }
-
-        // EVENT: Ambil Daftar Nama Warga Saat Grup Dawis Dipilih
-        document.getElementById('select-dawis').addEventListener('change', function () {
-            const dawis = this.value;
-            const selectNama = document.getElementById('select-nama');
-
-            showLoading();
-            selectNama.innerHTML = '<option value="" disabled selected>Pilih Nama Warga</option>';
-            selectNama.disabled = true;
-            M.FormSelect.init(selectNama);
-
-            fetch(`${SCRIPT_URL}?dawis=${encodeURIComponent(dawis)}`)
-                .then(response => response.json())
-                .then(res => {
-                    hideLoading();
-                    if (res.status === 'success' && res.data.length > 0) {
-                        res.data.forEach(nama => {
-                            let option = document.createElement('option');
-                            option.value = nama; option.text = nama;
-                            selectNama.appendChild(option);
-                        });
-                        selectNama.disabled = false;
-                        M.FormSelect.init(selectNama);
-                    } else { M.toast({ html: 'Tidak ada data warga ditemukan.' }); }
-                })
-                .catch(error => {
-                    hideLoading();
-                    M.toast({ html: 'Gagal mengambil data warga.' });
-                });
-        });
-
-        // EVENT: Submit Form Simpan Data (Dengan Fitur Konfirmasi Edit)
-        document.getElementById('formJimpitan').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const dawis = document.getElementById('select-dawis').value;
-            const nama = document.getElementById('select-nama').value;
-            const tanggal = document.getElementById('select-tanggal').value;
-            const nominal = document.getElementById('input-nominal').value;
-
-            if (!dawis || !nama || !tanggal || !nominal) return M.toast({ html: 'Harap lengkapi semua data!' });
-
-            // Pengiriman normal (bukan force update)
-            simpanDataJimpitan(dawis, nama, tanggal, nominal, false);
-        });
-
-        // FUNGSI KHUSUS: Mengirim data dengan opsi Force Update (Timpa Data)
-        function simpanDataJimpitan(dawis, nama, tanggal, nominal, isForceUpdate) {
-            showLoading();
-
-            let url = `${SCRIPT_URL}?dawis=${encodeURIComponent(dawis)}&nama=${encodeURIComponent(nama)}&tanggal=${tanggal}&nominal=${nominal}`;
-            if (isForceUpdate) {
-                url += `&force_update=true`;
-            }
-
-            fetch(url)
-                .then(response => response.json())
-                .then(res => {
-                    hideLoading();
-
-                    if (res.status === 'success') {
-                        let pesanSukses = isForceUpdate ? 'Data berhasil diperbarui (ditimpa)!' : 'Data berhasil disimpan!';
-                        M.toast({ html: pesanSukses, classes: 'green' });
-
-                        document.getElementById('input-nominal').value = '';
-                        M.updateTextFields();
-                        muatRekapBulanan(); // Perbarui grafik seketika
-                    } else {
-                        // Jika ada penolakan dari GAS karena data sudah ada
-                        if (res.message && res.message.includes("sudah membayar")) {
-                            let konfirmasi = confirm(`Data untuk ${nama} pada tanggal ${tanggal} SUDAH ADA.\n\nApakah Anda yakin ingin memperbarui/menimpa data lamanya menjadi Rp${formatRupiah(nominal)}?`);
-                            if (konfirmasi) {
-                                simpanDataJimpitan(dawis, nama, tanggal, nominal, true); // Paksa update
-                            } else {
-                                M.toast({ html: 'Pembaruan data dibatalkan.' });
-                            }
-                        } else {
-                            M.toast({ html: res.message, classes: 'red' });
-                        }
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    M.toast({ html: 'Terjadi kesalahan jaringan.', classes: 'red' });
-                });
-        }
-
-        // FUNGSI: Memperbarui Grafik di Halaman Utama
-        function muatRekapBulanan() {
-            fetch(`${SCRIPT_URL}?action=get_rekap_bulanan`)
-                .then(response => response.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        const total = parseInt(res.total_global) || 0;
-                        const d1 = parseInt(res.total_dawis1) || 0;
-                        const d2 = parseInt(res.total_dawis2) || 0;
-                        const d3 = parseInt(res.total_dawis3) || 0;
-
-                        document.getElementById('teks-total-global').innerText = `Total : Rp${formatRupiah(total)}`;
-                        document.getElementById('teks-d1').innerText = `D1 (${formatRupiah(d1)})`;
-                        document.getElementById('teks-d2').innerText = `D2 (${formatRupiah(d2)})`;
-                        document.getElementById('teks-d3').innerText = `D3 (${formatRupiah(d3)})`;
-
-                        const barContainer = document.getElementById('grafik-bar');
-                        if (total > 0) {
-                            barContainer.innerHTML = `
-                                <div class="progress-segment" style="width: ${(d1 / total) * 100}%; background-color: #2196F3;"></div>
-                                <div class="progress-segment" style="width: ${(d2 / total) * 100}%; background-color: #4CAF50;"></div>
-                                <div class="progress-segment" style="width: ${(d3 / total) * 100}%; background-color: #FF9800;"></div>
-                            `;
-                        } else {
-                            barContainer.innerHTML = `<div class="progress-segment" style="width: 100%; background-color: #e0e0e0;"></div>`;
-                        }
-                    }
-                })
-                .catch(err => console.error(err));
-        }
-
-        // FUNGSI: Menampilkan Modal "Rekap Bulanan"
-        function rekapBulanan() {
-            showLoading();
-            fetch(`${SCRIPT_URL}?action=get_rekap_bulanan`)
-                .then(response => response.json())
-                .then(res => {
-                    hideLoading();
-                    if (res.status === 'success') {
-                        dataRekapBulanIni.global = parseInt(res.total_global) || 0;
-                        dataRekapBulanIni.d1 = parseInt(res.total_dawis1) || 0;
-                        dataRekapBulanIni.d2 = parseInt(res.total_dawis2) || 0;
-                        dataRekapBulanIni.d3 = parseInt(res.total_dawis3) || 0;
-
-                        document.getElementById('rekap-modal-global').innerText = `Rp${formatRupiah(dataRekapBulanIni.global)}`;
-                        document.getElementById('rekap-modal-d1').innerText = `Rp${formatRupiah(dataRekapBulanIni.d1)}`;
-                        document.getElementById('rekap-modal-d2').innerText = `Rp${formatRupiah(dataRekapBulanIni.d2)}`;
-                        document.getElementById('rekap-modal-d3').innerText = `Rp${formatRupiah(dataRekapBulanIni.d3)}`;
-
-                        var instance = M.Modal.getInstance(document.getElementById('modal-rekap'));
-                        instance.open();
-                    } else { M.toast({ html: 'Gagal memuat rekap bulanan', classes: 'red' }); }
-                })
-                .catch(error => { hideLoading(); M.toast({ html: 'Kesalahan jaringan', classes: 'red' }); });
-        }
-
-        // FUNGSI: Mengirim Rekap Bulanan ke WA
-        function bagikanRekapWA() {
-            if (dataRekapBulanIni.global === 0) return M.toast({ html: 'Belum ada setoran.' });
-            const namaBulan = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            let teks = `*Rekap Jimpitan Bulan ${namaBulan}*\n\nTotal Global: *Rp${formatRupiah(dataRekapBulanIni.global)}*\n\nRincian:\n- Dawis 1: Rp${formatRupiah(dataRekapBulanIni.d1)}\n- Dawis 2: Rp${formatRupiah(dataRekapBulanIni.d2)}\n- Dawis 3: Rp${formatRupiah(dataRekapBulanIni.d3)}\n`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
-        }
-
-        // FUNGSI: Menampilkan Modal "Laporan Warga Per Dawis"
-        function laporanPerDawis() {
-            const dawis = document.getElementById('select-dawis').value;
-            if (!dawis) return M.toast({ html: 'Silakan pilih Grup Dawis di form terlebih dahulu!', classes: 'rounded red' });
-
-            showLoading();
-            fetch(`${SCRIPT_URL}?action=rekap_dawis&dawis=${encodeURIComponent(dawis)}`)
-                .then(response => response.json())
-                .then(res => {
-                    hideLoading();
-                    if (res.status === 'success') {
-                        namaDawisTerkini = dawis;
-                        dataLaporanDawisTerkini = res.data;
-                        totalDawisTerkini = 0;
-
-                        document.getElementById('judul-laporan-dawis').innerText = `Laporan ${dawis}`;
-                        document.getElementById('subjudul-laporan-dawis').innerText = `Total Jimpitan ${dawis} Bulan Ini :`;
-
-                        const konten = document.getElementById('konten-laporan-dawis');
-
-                        if (res.data.length > 0) {
-                            let html = ""; let nomor = 1;
-                            res.data.forEach(item => {
-                                const totalWarga = parseInt(item.total) || 0;
-                                totalDawisTerkini += totalWarga;
-                                html += `<div>${nomor}. ${item.nama} Rp${formatRupiah(totalWarga)}</div>`;
-                                nomor++;
-                            });
-                            konten.innerHTML = html;
-                        } else {
-                            konten.innerHTML = `<div style="color: red;">Belum ada data setoran untuk ${dawis}.</div>`;
-                        }
-
-                        document.getElementById('total-laporan-dawis').innerText = `Rp${formatRupiah(totalDawisTerkini)}`;
-                        var instance = M.Modal.getInstance(document.getElementById('modal-laporan-dawis'));
-                        instance.open();
-                    } else { M.toast({ html: res.message || 'Gagal memuat laporan', classes: 'red' }); }
-                })
-                .catch(error => { hideLoading(); M.toast({ html: 'Terjadi kesalahan jaringan', classes: 'red' }); });
-        }
-
-        // FUNGSI: Mengirim Laporan Warga Per Dawis ke WA
-        function bagikanLaporanDawisWA() {
-            if (dataLaporanDawisTerkini.length === 0) return M.toast({ html: 'Belum ada data untuk dibagikan.' });
-
-            const namaBulan = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            let teks = `*Laporan ${namaDawisTerkini}*\nTotal Jimpitan ${namaDawisTerkini} Bulan ${namaBulan} :\n\n`;
-
-            let nomor = 1;
-            dataLaporanDawisTerkini.forEach(item => {
-                const totalWarga = parseInt(item.total) || 0;
-                teks += `${nomor}. ${item.nama} Rp${formatRupiah(totalWarga)}\n`;
-                nomor++;
-            });
-
-            teks += `\n*Total = Rp${formatRupiah(totalDawisTerkini)}*`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
-        }
-    </script>
-</body>
-
-</html>
+                        <div class="legend-item"><span class="legend-color" style="background-color: #2196F3;"></span><span id="teks-d1">D1 (0)</span></div>
+                        <div class="legend-item"><span class="legend-
