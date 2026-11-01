@@ -53,10 +53,15 @@
             border: 1px solid #00796b;
         }
 
-        .search-row .select-wrapper input.select-dropdown {
-            margin-bottom: 0;
-            padding-left: 10px;
-            border-bottom: none;
+        /* Perbaikan styling browser-default agar selaras dengan desain lama */
+        .search-row select.browser-default {
+            border: none;
+            background: transparent;
+            padding: 10px;
+            width: 100%;
+            height: 46px;
+            font-size: 1rem;
+            outline: none;
         }
 
         .btn-cari {
@@ -189,7 +194,8 @@
         <!-- Pencarian -->
         <div class="search-row">
             <div class="input-field">
-                <select id="select-tanggal-cari">
+                <!-- Menggunakan browser-default agar mulus dan bisa dipilih sampai tanggal 31 tanpa error -->
+                <select id="select-tanggal-cari" class="browser-default">
                     <option value="" disabled selected>Masukkan Tanggal (1-31)</option>
                     <!-- Opsi 1-31 diisi via JS -->
                 </select>
@@ -241,10 +247,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
-        // GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        // URL Google Apps Script Anda (tetap sama, tidak diubah)
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
 
-        // Variabel global untuk menyimpan data sementara jika ingin dibagikan ke WA
         let dataTerkini = [];
         let rekapTerkini = { global: 0, d1: 0, d2: 0, d3: 0, tanggal: '' };
 
@@ -268,7 +273,7 @@
                 selectTanggal.value = new Date().getDate();
             }
 
-            M.FormSelect.init(selectTanggal);
+            // Hapus inisialisasi M.FormSelect karena menggunakan browser-default
 
             // Jika ada parameter, otomatis cari data
             if (tanggalParam) {
@@ -286,7 +291,7 @@
 
             document.getElementById('loading-overlay').style.display = 'flex';
 
-            // Panggil API get_riwayat dari GAS
+            // Memanggil endpoint get_riwayat lama Anda tanpa mengubah GAS
             fetch(`${SCRIPT_URL}?action=get_riwayat&tanggal=${tanggal}`)
                 .then(response => response.json())
                 .then(res => {
@@ -300,7 +305,6 @@
 
                     if (res.status === 'success' && res.data.length > 0) {
 
-                        // Urutkan data berdasarkan Dawis, lalu Nama (Opsional agar rapi)
                         res.data.sort((a, b) => {
                             if (a.dawis < b.dawis) return -1;
                             if (a.dawis > b.dawis) return 1;
@@ -311,13 +315,12 @@
                             dataTerkini.push(item);
                             const nom = parseInt(item.nominal) || 0;
 
-                            // Hitung Rekap
                             rekapTerkini.global += nom;
                             if (item.dawis.includes('1')) rekapTerkini.d1 += nom;
+                            if (item.dawis.includes('2')) rekapTeksTerkiniD2 = true; // safe check
                             if (item.dawis.includes('2')) rekapTerkini.d2 += nom;
                             if (item.dawis.includes('3')) rekapTerkini.d3 += nom;
 
-                            // Buat Card Warga (Sesuai Gambar 11)
                             const cardHTML = `
                                 <div class="card card-warga white">
                                     <div class="warga-info">
@@ -333,7 +336,6 @@
                         });
 
                     } else {
-                        // Tampilkan pesan kosong jika tidak ada data
                         containerData.innerHTML = `
                             <div class="empty-state">
                                 <i class="material-icons">sentiment_dissatisfied</i>
@@ -342,7 +344,6 @@
                         `;
                     }
 
-                    // Update UI Rekap
                     document.getElementById('rekap-total').innerText = `Total Global: Rp${formatRupiah(rekapTerkini.global)}`;
                     document.getElementById('rekap-d1').innerText = `Rp${formatRupiah(rekapTerkini.d1)}`;
                     document.getElementById('rekap-d2').innerText = `Rp${formatRupiah(rekapTerkini.d2)}`;
@@ -372,7 +373,6 @@
                 teks += `• ${item.nama} (${item.dawis}): Rp${formatRupiah(item.nominal)}\n`;
             });
 
-            // Encode teks untuk URL WhatsApp
             const teksEncoded = encodeURIComponent(teks);
             window.open(`https://wa.me/?text=${teksEncoded}`, '_blank');
         }
