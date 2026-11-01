@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lihat Data - Jimpitan</title>
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header-bg {
+            background-color: #00796b;
+            color: white;
+            padding: 20px 15px 40px 15px;
+        }
+
+        .header-bg h5 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .header-bg p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .main-container {
+            margin-top: -30px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Barisan Pencarian */
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .search-row .input-field {
+            margin: 0;
+            flex-grow: 1;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #00796b;
+        }
+
+        .search-row .select-wrapper input.select-dropdown {
+            margin-bottom: 0;
+            padding-left: 10px;
+            border-bottom: none;
+        }
+
+        .btn-cari {
+            background-color: #00796b;
+            height: 46px;
+            line-height: 46px;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: none;
+        }
+
+        /* Kartu Rekap Global */
+        .card-rekap {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-rekap h6 {
+            font-weight: bold;
+            color: #004d40;
+            margin-top: 0;
+        }
+
+        .grid-dawis {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .grid-dawis div {
+            font-size: 0.8rem;
+            color: #757575;
+        }
+
+        .grid-dawis span {
+            display: block;
+            color: #333;
+        }
+
+        .btn-wa {
+            width: 100%;
+            background-color: transparent;
+            color: #00796b;
+            border: 1px solid #00796b;
+            box-shadow: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* List Data Warga */
+        .card-warga {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .warga-info h6 {
+            margin: 0 0 5px 0;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .warga-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #9e9e9e;
+        }
+
+        .warga-nominal {
+            font-weight: bold;
+            color: #4CAF50;
+            /* Hijau */
+            font-size: 1.1rem;
+        }
+
+        /* State Kosong */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #757575;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #b0bec5;
+            margin-bottom: 10px;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-card {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-bg">
+        <a href="index.html" style="color: white; margin-right: 10px;"><i class="material-icons"
+                style="vertical-align: middle;">arrow_back</i></a>
+        <h5 style="display: inline-block; vertical-align: middle;">Lihat Data</h5>
+        <p style="margin-left: 34px;">Rekapitulasi setoran per tanggal</p>
+    </div>
+
+    <div class="main-container">
+        <!-- Pencarian -->
+        <div class="search-row">
+            <div class="input-field">
+                <select id="select-tanggal-cari">
+                    <option value="" disabled selected>Masukkan Tanggal (1-31)</option>
+                    <!-- Opsi 1-31 diisi via JS -->
+                </select>
+            </div>
+            <button class="btn btn-cari waves-effect waves-light" onclick="cariData()">CARI DATA</button>
+        </div>
+
+        <!-- Rekap Global -->
+        <div class="card card-rekap white">
+            <h6 id="rekap-total">Total Global: Rp0</h6>
+            <div class="grid-dawis">
+                <div>Total DAWIS 1:<br><span id="rekap-d1">Rp0</span></div>
+                <div>Total DAWIS 2:<br><span id="rekap-d2">Rp0</span></div>
+                <div>Total DAWIS 3:<br><span id="rekap-d3">Rp0</span></div>
+            </div>
+            <button class="btn btn-wa waves-effect" onclick="bagikanWA()">BAGIKAN REKAP KE WA</button>
+        </div>
+
+        <!-- Wadah List Data -->
+        <div id="container-data">
+            <!-- Tampilan Awal (Kosong) -->
+            <div class="empty-state" id="empty-state">
+                <i class="material-icons">search</i>
+                <p>Silakan cari tanggal untuk melihat data setoran.</p>
+            </div>
+            <!-- Daftar Card Warga akan masuk di sini -->
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-card">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only" style="border-color: #00796b;">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-weight: bold;">Mohon tunggu...</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        // GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
+
+        // Variabel global untuk menyimpan data sementara jika ingin dibagikan ke WA
+        let dataTerkini = [];
+        let rekapTerkini = { global: 0, d1: 0, d2: 0, d3: 0, tanggal: '' };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Generate opsi tanggal (1-31) untuk pencarian riwayat
+            const selectTanggal = document.getElementById('select-tanggal-cari');
+            for (let i = 1; i <= 31; i++) {
+                let option = document.createElement('option');
+                option.value = i;
+                option.text = i;
+                selectTanggal.appendChild(option);
+            }
+
+            // Cek apakah ada parameter tanggal dari halaman index
+            const urlParams = new URLSearchParams(window.location.search);
+            const tanggalParam = urlParams.get('tanggal');
+            if (tanggalParam) {
+                selectTanggal.value = tanggalParam;
+            } else {
+                // Default ke hari ini
+                selectTanggal.value = new Date().getDate();
+            }
+
+            M.FormSelect.init(selectTanggal);
+
+            // Jika ada parameter, otomatis cari data
+            if (tanggalParam) {
+                cariData();
+            }
+        });
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        function cariData() {
+            const tanggal = document.getElementById('select-tanggal-cari').value;
+            if (!tanggal) return M.toast({ html: 'Pilih tanggal terlebih dahulu!' });
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            // Panggil API get_riwayat dari GAS
+            fetch(`${SCRIPT_URL}?action=get_riwayat&tanggal=${tanggal}`)
+                .then(response => response.json())
+                .then(res => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+
+                    const containerData = document.getElementById('container-data');
+                    containerData.innerHTML = ''; // Bersihkan kontainer
+
+                    rekapTerkini = { global: 0, d1: 0, d2: 0, d3: 0, tanggal: tanggal };
+                    dataTerkini = [];
+
+                    if (res.status === 'success' && res.data.length > 0) {
+
+                        // Urutkan data berdasarkan Dawis, lalu Nama (Opsional agar rapi)
+                        res.data.sort((a, b) => {
+                            if (a.dawis < b.dawis) return -1;
+                            if (a.dawis > b.dawis) return 1;
+                            return 0;
+                        });
+
+                        res.data.forEach(item => {
+                            dataTerkini.push(item);
+                            const nom = parseInt(item.nominal) || 0;
+
+                            // Hitung Rekap
+                            rekapTerkini.global += nom;
+                            if (item.dawis.includes('1')) rekapTerkini.d1 += nom;
+                            if (item.dawis.includes('2')) rekapTerkini.d2 += nom;
+                            if (item.dawis.includes('3')) rekapTerkini.d3 += nom;
+
+                            // Buat Card Warga (Sesuai Gambar 11)
+                            const cardHTML = `
+                                <div class="card card-warga white">
+                                    <div class="warga-info">
+                                        <h6>${item.nama}</h6>
+                                        <p>${item.dawis}</p>
+                                    </div>
+                                    <div class="warga-nominal">
+                                        Rp${formatRupiah(nom)}
+                                    </div>
+                                </div>
+                            `;
+                            containerData.insertAdjacentHTML('beforeend', cardHTML);
+                        });
+
+                    } else {
+                        // Tampilkan pesan kosong jika tidak ada data
+                        containerData.innerHTML = `
+                            <div class="empty-state">
+                                <i class="material-icons">sentiment_dissatisfied</i>
+                                <p>Belum ada data setoran untuk tanggal ${tanggal}.</p>
+                            </div>
+                        `;
+                    }
+
+                    // Update UI Rekap
+                    document.getElementById('rekap-total').innerText = `Total Global: Rp${formatRupiah(rekapTerkini.global)}`;
+                    document.getElementById('rekap-d1').innerText = `Rp${formatRupiah(rekapTerkini.d1)}`;
+                    document.getElementById('rekap-d2').innerText = `Rp${formatRupiah(rekapTerkini.d2)}`;
+                    document.getElementById('rekap-d3').innerText = `Rp${formatRupiah(rekapTerkini.d3)}`;
+
+                })
+                .catch(error => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    M.toast({ html: 'Terjadi kesalahan jaringan' });
+                    console.error(error);
+                });
+        }
+
+        function bagikanWA() {
+            if (dataTerkini.length === 0) {
+                return M.toast({ html: 'Tidak ada data untuk dibagikan.' });
+            }
+
+            let teks = `*REKAP JIMPITAN TANGGAL ${rekapTerkini.tanggal}*\n\n`;
+            teks += `*Total Pemasukan: Rp${formatRupiah(rekapTerkini.global)}*\n`;
+            teks += `- Dawis 1: Rp${formatRupiah(rekapTerkini.d1)}\n`;
+            teks += `- Dawis 2: Rp${formatRupiah(rekapTerkini.d2)}\n`;
+            teks += `- Dawis 3: Rp${formatRupiah(rekapTerkini.d3)}\n\n`;
+
+            teks += `*Rincian Warga:*\n`;
+            dataTerkini.forEach(item => {
+                teks += `• ${item.nama} (${item.dawis}): Rp${formatRupiah(item.nominal)}\n`;
+            });
+
+            // Encode teks untuk URL WhatsApp
+            const teksEncoded = encodeURIComponent(teks);
+            window.open(`https://wa.me/?text=${teksEncoded}`, '_blank');
+        }
+    </script>
+</body>
+
+</html>

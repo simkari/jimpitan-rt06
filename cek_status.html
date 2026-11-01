@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Status Warga - Jimpitan</title>
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Select2 CSS untuk fitur dropdown yang bisa diketik (Searchable) -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header-bg {
+            background-color: #00796b;
+            color: white;
+            padding: 20px 15px 40px 15px;
+        }
+
+        .header-bg h5 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .header-bg p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .main-container {
+            margin-top: -30px;
+            padding: 0 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-pencarian {
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        .btn-cari {
+            background-color: #00796b;
+            width: 100%;
+            height: 46px;
+            line-height: 46px;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: none;
+            margin-top: 15px;
+        }
+
+        /* Styling Select2 agar mirip Materialize */
+        .select2-container .select2-selection--single {
+            height: 46px;
+            border: 1px solid #00796b;
+            border-radius: 4px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 46px;
+            padding-left: 15px;
+            color: #333;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+        }
+
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border: 2px solid #00796b;
+            outline: none;
+        }
+
+        /* Area Hasil */
+        #area-hasil {
+            padding: 10px 5px;
+            font-size: 1rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-card {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-bg">
+        <a href="index.html" style="color: white; margin-right: 10px;"><i class="material-icons"
+                style="vertical-align: middle;">arrow_back</i></a>
+        <h5 style="display: inline-block; vertical-align: middle;">Cek Status Warga</h5>
+        <p style="margin-left: 34px;">Lihat riwayat setoran per nama warga</p>
+    </div>
+
+    <div class="main-container">
+
+        <div class="card-pencarian">
+            <!-- Dropdown Nama Warga (Menggunakan Select2) -->
+            <label for="select-nama" style="font-size: 0.9rem; color: #00796b; font-weight: 500;">Nama Warga</label>
+            <select id="select-nama" style="width: 100%;">
+                <option value="" disabled selected>Ketik atau pilih nama...</option>
+                <!-- Opsi akan diisi oleh JS -->
+            </select>
+
+            <button class="btn btn-cari waves-effect waves-light" onclick="cariStatus()">CARI</button>
+        </div>
+
+        <!-- Wadah untuk menampilkan hasil riwayat -->
+        <div id="area-hasil">
+            <!-- Placeholder saat belum ada pencarian -->
+            <div id="placeholder-hasil">
+                <div style="height: 16px; background: #e0e0e0; margin-bottom: 10px; width: 80%;"></div>
+                <div style="height: 16px; background: #e0e0e0; margin-bottom: 10px; width: 100%;"></div>
+                <div style="height: 16px; background: #e0e0e0; margin-bottom: 10px; width: 100%;"></div>
+                <div style="height: 16px; background: #e0e0e0; margin-bottom: 10px; width: 60%;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-card">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-teal-only" style="border-color: #00796b;">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-weight: bold;">Mohon tunggu...</p>
+        </div>
+    </div>
+
+    <!-- jQuery (Dibutuhkan oleh Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // =======================================================
+        // GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        // =======================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
+
+        $(document).ready(function () {
+            // Inisialisasi Select2 pada dropdown nama
+            $('#select-nama').select2({
+                placeholder: "Ketik nama warga...",
+                allowClear: true
+            });
+
+            // Ambil semua daftar nama warga dari GAS saat halaman dimuat
+            muatSemuaNama();
+        });
+
+        // Fungsi format Rupiah tanpa desimal
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        function muatSemuaNama() {
+            // Tampilkan loading saat mengambil daftar nama
+            $('#loading-overlay').css('display', 'flex');
+
+            // Kita perlu mengambil daftar nama dari Dawis 1, 2, dan 3.
+            // Karena API Anda saat ini menggunakan parameter 'dawis', kita akan panggil 3 kali secara paralel (Promise.all).
+
+            const reqD1 = fetch(`${SCRIPT_URL}?dawis=DAWIS 1`).then(res => res.json());
+            const reqD2 = fetch(`${SCRIPT_URL}?dawis=DAWIS 2`).then(res => res.json());
+            const reqD3 = fetch(`${SCRIPT_URL}?dawis=DAWIS 3`).then(res => res.json());
+
+            Promise.all([reqD1, reqD2, reqD3])
+                .then(results => {
+                    $('#loading-overlay').css('display', 'none');
+                    let semuaNama = [];
+
+                    // Gabungkan array nama dari ketiga Dawis
+                    results.forEach(res => {
+                        if (res.status === 'success' && res.data) {
+                            semuaNama = semuaNama.concat(res.data);
+                        }
+                    });
+
+                    // Hapus duplikat nama (jika ada nama yang sama persis) dan urutkan
+                    semuaNama = [...new Set(semuaNama)].sort();
+
+                    const selectEl = $('#select-nama');
+                    semuaNama.forEach(nama => {
+                        // Tambahkan ke opsi Select2
+                        selectEl.append(new Option(nama, nama, false, false));
+                    });
+
+                    // Perbarui tampilan Select2
+                    selectEl.trigger('change');
+                })
+                .catch(err => {
+                    $('#loading-overlay').css('display', 'none');
+                    M.toast({ html: 'Gagal memuat daftar nama.' });
+                    console.error(err);
+                });
+        }
+
+        function cariStatus() {
+            const nama = $('#select-nama').val();
+
+            if (!nama) {
+                return M.toast({ html: 'Silakan ketik/pilih nama terlebih dahulu!' });
+            }
+
+            $('#loading-overlay').css('display', 'flex');
+            const areaHasil = document.getElementById('area-hasil');
+
+            // Hit API GAS
+            fetch(`${SCRIPT_URL}?action=cari_warga&nama=${encodeURIComponent(nama)}`)
+                .then(response => response.json())
+                .then(res => {
+                    $('#loading-overlay').css('display', 'none');
+
+                    if (res.status === 'success') {
+                        if (res.data.length > 0) {
+
+                            // Urutkan data berdasarkan tanggal
+                            res.data.sort((a, b) => parseInt(a.tanggal) - parseInt(b.tanggal));
+
+                            let html = `<p style="margin-bottom: 15px;">Riwayat setoran '${nama}' bulan ini:</p>`;
+                            let totalSetoran = 0;
+
+                            res.data.forEach(item => {
+                                const nom = parseInt(item.nominal) || 0;
+                                totalSetoran += nom;
+                                html += `<p style="margin: 5px 0;">- Tanggal ${item.tanggal}: Rp${formatRupiah(nom)}</p>`;
+                            });
+
+                            html += `<p style="margin-top: 15px; margin-bottom: 0;">Total Setoran: Rp${formatRupiah(totalSetoran)}</p>`;
+
+                            // Tampilkan hasil di area bawah sesuai gambar desain
+                            areaHasil.innerHTML = html;
+
+                        } else {
+                            areaHasil.innerHTML = `<p style="color: #d32f2f;">Belum ada data setoran untuk '${nama}'.</p>`;
+                        }
+                    } else {
+                        M.toast({ html: 'Terjadi kesalahan sistem.' });
+                    }
+                })
+                .catch(err => {
+                    $('#loading-overlay').css('display', 'none');
+                    M.toast({ html: 'Terjadi kesalahan jaringan.' });
+                    console.error(err);
+                });
+        }
+    </script>
+</body>
+
+</html>
