@@ -12,6 +12,9 @@
     <!-- Select2 CSS untuk fitur dropdown yang bisa diketik (Searchable) -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00796b">
+
     <style>
         body {
             background-color: #f5f5f5;
@@ -291,6 +294,16 @@
                 });
         }
     </script>
+    <script>
+  // Mendaftarkan Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('PWA Siap!', reg.scope))
+        .catch(err => console.log('PWA Gagal:', err));
+    });
+  }
+</script>
 </body>
 
 </html>
