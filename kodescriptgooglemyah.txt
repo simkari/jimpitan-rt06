@@ -1,0 +1,424 @@
+// NAMA SHEET tempat daftar nama Dawis disimpan (kosongkan jika ada di semua sheet)
+var NAMA_SHEET_DATA_WARGA = ""; 
+
+function doGet(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var action = e.parameter.action;
+    var dawis = e.parameter.dawis;
+    var nama = e.parameter.nama;
+    var tanggal = e.parameter.tanggal;
+    var nominal = e.parameter.nominal;
+
+    // ==========================================
+    // 1. FITUR SIMPAN DATA
+    // ==========================================
+    if (dawis && nama && tanggal && nominal) {
+      var forceUpdate = e.parameter.force_update; 
+      var sheetSimpan = ss.getSheetByName(dawis);
+      if (!sheetSimpan) return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Gagal: Sheet tidak ditemukan." })).setMimeType(ContentService.MimeType.JSON);
+      
+      var dataSimpan = sheetSimpan.getDataRange().getValues();
+      var barisDitemukan = -1;
+      for (var i = 4; i < dataSimpan.length; i++) {
+        if (dataSimpan[i][1] == nama) {
+          barisDitemukan = i + 1;
+          break;
+        }
+      }
+      if (barisDitemukan !== -1) {
+        var kolomTanggal = 2 + parseInt(tanggal); 
+        var selTujuan = sheetSimpan.getRange(barisDitemukan, kolomTanggal);
+        if (selTujuan.getValue() !== "" && forceUpdate !== "true") {
+          return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Gagal: Warga ini sudah membayar pada tanggal tersebut!" })).setMimeType(ContentService.MimeType.JSON);
+        }
+        selTujuan.setValue(nominal);
+        return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Data Berhasil Disimpan" })).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Nama warga tidak ditemukan." })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    // ==========================================
+    // 2. FITUR LIHAT RIWAYAT TANGGAL
+    // ==========================================
+    if (action == "get_riwayat") {
+      var tanggalDicari = parseInt(e.parameter.tanggal);
+      var result = [];
+      var indeksKolomTanggal = 1 + tanggalDicari; 
+      var sheets = ss.getSheets();
+      for (var s = 0; s < sheets.length; s++) {
+        var sheetName = sheets[s].getName().toUpperCase();
+        // HANYA proses jika nama sheet DIMULAI dengan "DAWIS"
+        if (sheetName.indexOf("DAWIS") === 0) { 
+          var dataRiwayat = sheets[s].getDataRange().getValues();
+          for (var i = 4; i < dataRiwayat.length; i++) {
+            var row = dataRiwayat[i];
+            var namaSheet = row[1] ? row[1].toString() : ""; 
+            var nominalSheet = row[indeksKolomTanggal] ? row[indeksKolomTanggal].toString() : "";
+            if (namaSheet !== "" && nominalSheet !== "") {
+              result.push({ dawis: sheetName, nama: namaSheet, tanggal: tanggalDicari.toString(), nominal: nominalSheet });
+            }
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ==========================================
+    // 3. FITUR AMBIL NAMA WARGA
+    // ==========================================
+    if (dawis && !nama && !tanggal && !action) {
+      var sheetData = ss.getSheetByName(dawis);
+      if (!sheetData) return ContentService.createTextOutput(JSON.stringify({ status: "success", data: [] })).setMimeType(ContentService.MimeType.JSON);
+      
+      var dataAmbilNama = sheetData.getDataRange().getValues();
+      var daftarNama = [];
+      for (var i = 4; i < dataAmbilNama.length; i++) {
+        var namaWarga = dataAmbilNama[i][1];
+        if (namaWarga && namaWarga !== "") daftarNama.push(namaWarga);
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: daftarNama })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+       // ==========================================
+    // 4. FITUR REKAP TOTAL BULANAN (Membaca langsung dari Baris Total AH27)
+    // ==========================================
+    // if (action == "get_rekap_bulanan") {
+    //   var totalDawis1 = 0;
+    //   var totalDawis2 = 0;
+    //   var totalDawis3 = 0;
+    //   var sheets = ss.getSheets();
+      
+    //   for (var s = 0; s < sheets.length; s++) {
+    //     var sheetName = sheets[s].getName().toUpperCase();
+    //     if (sheetName.indexOf("DAWIS") === 0) {
+    //       var dataRiwayat = sheets[s].getDataRange().getValues();
+    //       // Baris rekap total ada di baris ke-27 (index 26 di getValues) pada Kolom AH (index 33)
+    //       var totalRowIndex = 26; // Baris 27
+    //       var colIndexAH = 33;    // Kolom AH
+          
+    //       if (dataRiwayat.length > totalRowIndex) {
+    //         var valAH = dataRiwayat[totalRowIndex][colIndexAH];
+    //         var num = parseInt(String(valAH).replace(/[^0-9]/g, ""));
+    //         if (!isNaN(num)) {
+    //           if (sheetName.indexOf("1") !== -1) {
+    //             totalDawis1 = num;
+    //           } else if (sheetName.indexOf("2") !== -1) {
+    //             totalDawis2 = num;
+    //           } else if (sheetName.indexOf("3") !== -1) {
+    //             totalDawis3 = num;
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+      
+    //   var totalGlobal = totalDawis1 + totalDawis2 + totalDawis3;
+      
+    //   return ContentService.createTextOutput(JSON.stringify({
+    //     status: "success",
+    //     total_global: totalGlobal.toString(), 
+    //     total_dawis1: totalDawis1.toString(), 
+    //     total_dawis2: totalDawis2.toString(), 
+    //     total_dawis3: totalDawis3.toString()
+    //   })).setMimeType(ContentService.MimeType.JSON);
+    // }
+
+        // ==========================================
+    // 4. FITUR REKAP TOTAL BULANAN (Dihitung Ulang oleh Sistem)
+    // ==========================================
+    if (action == "get_rekap_bulanan") {
+      var totalGlobal = 0, totalDawis1 = 0, totalDawis2 = 0, totalDawis3 = 0;
+      var sheets = ss.getSheets();
+      
+      for (var s = 0; s < sheets.length; s++) {
+        var sheetName = sheets[s].getName().toUpperCase();
+        if (sheetName.indexOf("DAWIS") === 0) {
+          var dataRiwayat = sheets[s].getDataRange().getValues();
+          // Loop mulai baris data warga (index 4)
+          for (var i = 4; i < dataRiwayat.length; i++) {
+            var namaWarga = String(dataRiwayat[i][1]).trim();
+            // Lewati baris kosong atau baris bertuliskan "TOTAL"
+            if (!namaWarga || namaWarga.toUpperCase().indexOf("TOTAL") !== -1) continue;
+            
+            // Loop kolom tanggal C s.d AG (Index 2 s.d 32)
+            for (var col = 2; col <= 32; col++) {
+              var nominalStr = dataRiwayat[i][col] ? String(dataRiwayat[i][col]).replace(/[^0-9]/g, "") : "";
+              if (nominalStr !== "") {
+                var nom = parseInt(nominalStr);
+                if (!isNaN(nom)) {
+                  totalGlobal += nom;
+                  if (sheetName.indexOf("1") !== -1) totalDawis1 += nom;
+                  else if (sheetName.indexOf("2") !== -1) totalDawis2 += nom;
+                  else if (sheetName.indexOf("3") !== -1) totalDawis3 += nom;
+                }
+              }
+            }
+          }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        total_global: totalGlobal.toString(), 
+        total_dawis1: totalDawis1.toString(), 
+        total_dawis2: totalDawis2.toString(), 
+        total_dawis3: totalDawis3.toString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+        // ==========================================
+    // 5. FITUR CEK STATUS WARGA (Cari Nama - Exact Match)
+    // ==========================================
+    if (action == "cari_warga") {
+      var namaDicari = String(e.parameter.nama).toLowerCase().trim();
+      var result = [];
+      var sheets = ss.getSheets();
+      var found = false;
+      
+      for (var s = 0; s < sheets.length; s++) {
+        var sheetName = sheets[s].getName().toUpperCase();
+        if (sheetName.indexOf("DAWIS") === 0) {
+          var dataWarga = sheets[s].getDataRange().getValues();
+          for (var i = 4; i < dataWarga.length; i++) {
+            var namaSheet = dataWarga[i][1] ? String(dataWarga[i][1]).toLowerCase().trim() : "";
+            
+            // Gunakan exact match (harus persis sama) agar tidak tercampur dengan nama lain
+            if (namaSheet === namaDicari) {
+              for (var col = 2; col <= 32; col++) {
+                var nominalStr = dataWarga[i][col] ? dataWarga[i][col].toString().replace(/[^0-9]/g, "") : "";
+                if (nominalStr !== "") {
+                  var tgl = (col - 1).toString();
+                  result.push({ tanggal: tgl, nominal: nominalStr });
+                }
+              }
+              found = true;
+              break; 
+            }
+          }
+          if (found) break; // Berhenti jika sudah ketemu
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+        // ==========================================
+    // 6. FITUR REKAP TOTAL PER NAMA (Laporan Warga Per Dawis)
+    // ==========================================
+    // if (action == "rekap_dawis") {
+    //   var dawisDicari = e.parameter.dawis;
+    //   if (!dawisDicari) {
+    //     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Parameter Dawis kosong" })).setMimeType(ContentService.MimeType.JSON);
+    //   }
+      
+    //   var sheetData = ss.getSheetByName(dawisDicari);
+    //   if (!sheetData) {
+    //     return ContentService.createTextOutput(JSON.stringify({ status: "success", data: [] })).setMimeType(ContentService.MimeType.JSON);
+    //   }
+      
+    //   var dataWarga = sheetData.getDataRange().getValues();
+    //   var result = [];
+      
+    //   // Mulai dari baris index 4 (baris 5) - baris data pertama warga
+    //   for (var i = 4; i < dataWarga.length; i++) {
+    //     var namaSheet = dataWarga[i][1];
+        
+    //     // Pastikan nama ada, dan abaikan baris yang bertuliskan "TOTAL" di bawah
+    //     if (namaSheet && String(namaSheet).trim() !== "" && String(namaSheet).toUpperCase().indexOf("TOTAL") === -1) {
+          
+    //       // AMBIL LANGSUNG DARI KOLOM TOTAL (KOLOM AH / Index 33)
+    //       var rowTotalVal = dataWarga[i][33]; 
+    //       var rowTotal = 0;
+          
+    //       if (rowTotalVal !== undefined && rowTotalVal !== null && rowTotalVal !== "") {
+    //          rowTotal = parseInt(String(rowTotalVal).replace(/[^0-9]/g, ""));
+    //          if (isNaN(rowTotal)) rowTotal = 0;
+    //       }
+
+    //       result.push({
+    //         "nama": String(namaSheet).trim(),
+    //         "total": rowTotal.toString()
+    //       });
+    //     }
+    //   }
+      
+    //   return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result })).setMimeType(ContentService.MimeType.JSON);
+    // }
+        // ==========================================
+    // 6. FITUR REKAP TOTAL PER NAMA (Dihitung Ulang oleh Sistem)
+    // ==========================================
+    if (action == "rekap_dawis") {
+      var dawisDicari = e.parameter.dawis;
+      if (!dawisDicari) {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Parameter Dawis kosong" })).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      var sheetData = ss.getSheetByName(dawisDicari);
+      if (!sheetData) return ContentService.createTextOutput(JSON.stringify({ status: "success", data: [] })).setMimeType(ContentService.MimeType.JSON);
+      
+      var dataWarga = sheetData.getDataRange().getValues();
+      var result = [];
+      
+      for (var i = 4; i < dataWarga.length; i++) {
+        var namaSheet = String(dataWarga[i][1]).trim();
+        // Lewati baris kosong atau baris "TOTAL"
+        if (namaSheet && namaSheet !== "" && namaSheet.toUpperCase().indexOf("TOTAL") === -1) {
+          var rowTotal = 0;
+          // Hitung ulang kolom tanggal C s.d AG (Index 2 s.d 32)
+          for (var col = 2; col <= 32; col++) {
+            var nominalStr = dataWarga[i][col] ? String(dataWarga[i][col]).replace(/[^0-9]/g, "") : "";
+            if (nominalStr !== "") {
+              var nom = parseInt(nominalStr);
+              if (!isNaN(nom)) rowTotal += nom;
+            }
+          }
+          result.push({
+            "nama": namaSheet,
+            "total": rowTotal.toString()
+          });
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", data: result })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+
+    //tambahan
+    // Tambahkan baris ini di dalam fungsi doGet(e)
+  if (e.parameter.action === 'get_laporan_tahunan') {
+    return getLaporanTahunan(e.parameter.tahun);
+  }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Perintah tidak dikenali." })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+// Kode ini akan membuat menu khusus di Google Sheets Anda
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('🛠️ Menu Jimpitan')
+      .addItem('Tutup Buku & Rekap Bulan Ini', 'prosesTutupBuku')
+      .addToUi();
+}
+
+function prosesTutupBuku() {
+  var ui = SpreadsheetApp.getUi();
+  
+  // --- KODE PENGAMANAN PIN DIMULAI DI SINI ---
+  var responsPin = ui.prompt("🔐 Keamanan Sistem", "Masukkan PIN Admin untuk melakukan Tutup Buku:", ui.ButtonSet.OK_CANCEL);
+  
+  // Jika tombol Cancel diklik
+  if (responsPin.getSelectedButton() !== ui.Button.OK) return;
+  
+  var pinMasuk = responsPin.getResponseText();
+  
+  // GANTI "123456" DENGAN PIN RAHASIA ANDA
+  if (pinMasuk !== "0607") { 
+    ui.alert("Akses Ditolak", "PIN yang Anda masukkan salah. Proses Tutup Buku dibatalkan secara otomatis.", ui.ButtonSet.OK);
+    return;
+  }
+  // --- KODE PENGAMANAN PIN SELESAI ---
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetSejarah = ss.getSheetByName("DATABASE_SEJARAH");
+  // ... (lanjutkan dengan sisa kode asli di bawahnya) ...
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetSejarah = ss.getSheetByName("DATABASE_SEJARAH");
+  
+  if (!sheetSejarah) {
+    ui.alert("Silakan buat tab baru dengan nama 'DATABASE_SEJARAH' terlebih dahulu.");
+    return;
+  }
+  
+  // Meminta konfirmasi bulan dan tahun dari admin
+  var responsBulan = ui.prompt("Tutup Buku", "Silakan masukkan nama Bulan (contoh: November):", ui.ButtonSet.OK_CANCEL);
+  if (responsBulan.getSelectedButton() !== ui.Button.OK) return;
+  var bulan = responsBulan.getResponseText();
+  
+  var responsTahun = ui.prompt("Tutup Buku", "Silakan masukkan Tahun (contoh: 2026):", ui.ButtonSet.OK_CANCEL);
+  if (responsTahun.getSelectedButton() !== ui.Button.OK) return;
+  var tahun = responsTahun.getResponseText();
+  
+  var daftarDawis = ["DAWIS 1", "DAWIS 2", "DAWIS 3"];
+  var dataUntukDisimpan = [];
+  
+  // Mengambil data dari setiap tabel matriks Dawis
+  for (var d = 0; d < daftarDawis.length; d++) {
+    var sheetDawis = ss.getSheetByName(daftarDawis[d]);
+    
+    if (sheetDawis) {
+      var data = sheetDawis.getDataRange().getValues();
+      var jumlahBaris = sheetDawis.getLastRow();
+      
+      // Mengambil data mulai dari baris ke-5 (karena baris 1-4 adalah header/judul)
+      for (var i = 4; i < jumlahBaris; i++) {
+        var namaWarga = data[i][1]; // Membaca Kolom B (NAMA)
+        var totalSetoran = data[i][33]; // Membaca Kolom AH (Total)
+        
+        // Jika warga memiliki total setoran lebih dari 0, simpan ke memori sementara
+        if (namaWarga && totalSetoran > 0) {
+          dataUntukDisimpan.push([new Date(), bulan, tahun, daftarDawis[d], namaWarga, totalSetoran]);
+        }
+      }
+      
+      // Proses Mengosongkan Tabel: Menghapus angka dari Tanggal 1 hingga 31
+      if (jumlahBaris > 4) {
+        // Menghapus data dari baris ke-5, kolom ke-3 (C), sebanyak baris warga, mencakup 31 kolom tanggal
+        sheetDawis.getRange(5, 3, jumlahBaris - 4, 31).clearContent();
+      }
+    }
+  }
+  
+  // Menyimpan semua memori ke tab DATABASE_SEJARAH
+  if (dataUntukDisimpan.length > 0) {
+    var barisAkhir = sheetSejarah.getLastRow() + 1;
+    sheetSejarah.getRange(barisAkhir, 1, dataUntukDisimpan.length, dataUntukDisimpan[0].length).setValues(dataUntukDisimpan);
+    ui.alert("Berhasil!", "Rekap " + bulan + " " + tahun + " telah dipindahkan ke DATABASE_SEJARAH dan tabel Dawis telah dikosongkan untuk bulan baru.", ui.ButtonSet.OK);
+  } else {
+    ui.alert("Perhatian", "Tidak ada data setoran yang ditemukan untuk dipindahkan.", ui.ButtonSet.OK);
+  }
+}
+
+function getLaporanTahunan(tahunReq) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("DATABASE_SEJARAH");
+    
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({status: "error", message: "Tab DATABASE_SEJARAH belum ada."})).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var data = sheet.getDataRange().getValues();
+    var hasil = [];
+    var totalGlobalTahunan = 0;
+    
+    // Mulai dari baris ke-2 (indeks 1) karena baris 1 adalah tajuk tabel
+    // Asumsi Kolom: 0=Waktu, 1=Bulan, 2=Tahun, 3=Dawis, 4=Nama, 5=Nominal
+    for (var i = 1; i < data.length; i++) {
+      var tahunDiSheet = String(data[i][2]).trim();
+      
+      if (tahunDiSheet === String(tahunReq).trim()) {
+        var nominal = parseFloat(data[i][5]) || 0;
+        totalGlobalTahunan += nominal;
+        
+        hasil.push({
+          bulan: String(data[i][1]).trim(),
+          dawis: String(data[i][3]).trim(),
+          nama: String(data[i][4]).trim(),
+          nominal: nominal
+        });
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      total_tahunan: totalGlobalTahunan,
+      data: hasil
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
