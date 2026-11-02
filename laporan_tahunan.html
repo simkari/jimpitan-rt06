@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Tahunan - Jimpitan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+
+        .header-bg {
+            background-color: #00796b;
+            color: white;
+            padding: 20px 15px 60px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-bg a {
+            color: white;
+            margin-right: 15px;
+        }
+
+        .header-bg h5 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .main-container {
+            margin-top: -40px;
+            padding: 0 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-filter {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-filter select {
+            border: 1px solid #00796b;
+            border-radius: 4px;
+            padding: 10px;
+            flex: 1;
+            outline: none;
+            background: transparent;
+        }
+
+        .btn-cari {
+            background-color: #00796b;
+            height: 45px;
+            line-height: 45px;
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 0 20px;
+        }
+
+        .card-rekap {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-rekap h5 {
+            color: #004d40;
+            font-weight: bold;
+            margin-top: 0;
+        }
+
+        /* Desain Baris Bulan yang bisa diklik */
+        .card-bulan {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #00796b;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .card-bulan:hover {
+            background: #f9f9f9;
+        }
+
+        .bulan-teks {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .bulan-nominal {
+            color: #2e7d32;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        /* Desain Wadah Rincian Warga */
+        .rincian-container {
+            display: none;
+            /* Disembunyikan secara default */
+            background: white;
+            border-radius: 0 0 8px 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            margin-top: -5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #b2dfdb;
+            border-right: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .warga-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 0;
+        }
+
+        .warga-item:last-child {
+            border-bottom: none;
+        }
+
+        .warga-nama {
+            font-weight: bold;
+            color: #424242;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .warga-dawis {
+            color: #9e9e9e;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .warga-nominal-kecil {
+            color: #388e3c;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-card {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-bg">
+        <a href="index.html"><i class="material-icons">arrow_back</i></a>
+        <div>
+            <h5>Laporan Tahunan</h5>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Rekapitulasi Jimpitan per Tahun</p>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Filter Tahun -->
+        <div class="card-filter">
+            <select id="select-tahun" class="browser-default">
+                <!-- Tahun diisi otomatis via JS -->
+            </select>
+            <button class="btn btn-cari waves-effect waves-light" onclick="cariDataTahunan()">CARI</button>
+        </div>
+
+        <div id="hasil-container">
+            <!-- Hasil rekap akan muncul di sini -->
+            <p style="text-align: center; color: #757575; margin-top: 40px;">Silakan pilih tahun untuk melihat laporan.
+            </p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-overlay">
+        <div class="loading-card">
+            <div class="preloader-wrapper active">
+                <div class="spinner-layer spinner-teal-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top: 15px;">Menarik Data Sejarah...</p>
+        </div>
+    </div>
+
+    <script>
+        // Menggunakan URL API terbaru Anda
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcL4ck5Ae2NmaUcPN86qJ1kvHmV_NlbLEURUQ_eTFaveahx0pNugFHOQN6s8kSbKb2/exec";
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectTahun = document.getElementById('select-tahun');
+            const tahunSekarang = new Date().getFullYear();
+
+            for (let i = 2026; i <= tahunSekarang + 5; i++) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.text = "Tahun " + i;
+                if (i === tahunSekarang) opt.selected = true;
+                selectTahun.appendChild(opt);
+            }
+        });
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        // Fungsi buka/tutup rincian
+        function toggleBulan(id) {
+            const elemen = document.getElementById(id);
+            const ikon = document.getElementById('ikon-' + id);
+            if (elemen.style.display === "block") {
+                elemen.style.display = "none";
+                ikon.innerText = "arrow_drop_down";
+            } else {
+                elemen.style.display = "block";
+                ikon.innerText = "arrow_drop_up";
+            }
+        }
+
+        function cariDataTahunan() {
+            const tahun = document.getElementById('select-tahun').value;
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            fetch(`${SCRIPT_URL}?action=get_laporan_tahunan&tahun=${tahun}`)
+                .then(response => response.json())
+                .then(res => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    const container = document.getElementById('hasil-container');
+
+                    if (res.status === 'success' && res.data.length > 0) {
+                        const totalTahunan = parseInt(res.total_tahunan) || 0;
+
+                        // Mengelompokkan data per Bulan (Total dan Rincian Warga)
+                        let rekapPerBulan = {};
+                        res.data.forEach(item => {
+                            if (!rekapPerBulan[item.bulan]) {
+                                rekapPerBulan[item.bulan] = { total: 0, rincian: [] };
+                            }
+                            rekapPerBulan[item.bulan].total += item.nominal;
+                            rekapPerBulan[item.bulan].rincian.push(item);
+                        });
+
+                        // Render Header
+                        let html = `
+                            <div class="card-rekap">
+                                <p style="margin:0; color:#757575;">Total Kas Jimpitan Tahun ${tahun}</p>
+                                <h5>Rp${formatRupiah(totalTahunan)}</h5>
+                            </div>
+                            <h6 style="font-weight:bold; color:#00796b; margin-bottom:15px; font-size: 0.95rem;">Ketuk bulan untuk melihat rincian:</h6>
+                        `;
+
+                        // Render setiap bulan menjadi tombol yang bisa diklik
+                        for (let bulan in rekapPerBulan) {
+                            let idBulan = 'rincian-' + bulan.replace(/\s+/g, '-');
+
+                            html += `
+                                <div class="card-bulan" onclick="toggleBulan('${idBulan}')">
+                                    <p class="bulan-teks">${bulan} <i class="material-icons" id="ikon-${idBulan}" style="margin-left: 5px; color:#9e9e9e;">arrow_drop_down</i></p>
+                                    <p class="bulan-nominal">Rp${formatRupiah(rekapPerBulan[bulan].total)}</p>
+                                </div>
+                                <div class="rincian-container" id="${idBulan}">
+                            `;
+
+                            // Urutkan rincian berdasarkan Dawis lalu Nama agar rapi
+                            rekapPerBulan[bulan].rincian.sort((a, b) => a.dawis.localeCompare(b.dawis) || a.nama.localeCompare(b.nama));
+
+                            rekapPerBulan[bulan].rincian.forEach(w => {
+                                html += `
+                                    <div class="warga-item">
+                                        <div>
+                                            <p class="warga-nama">${w.nama}</p>
+                                            <p class="warga-dawis">${w.dawis}</p>
+                                        </div>
+                                        <div class="warga-nominal-kecil">Rp${formatRupiah(w.nominal)}</div>
+                                    </div>
+                                `;
+                            });
+
+                            html += `</div>`; // Tutup rincian-container
+                        }
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                            <div class="card-rekap">
+                                <i class="material-icons" style="font-size:3rem; color:#b0bec5;">folder_open</i>
+                                <p style="color:#757575;">Belum ada arsip data sejarah untuk Tahun ${tahun}.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    alert('Terjadi kesalahan jaringan. Gagal memuat data sejarah.');
+                });
+        }
+    </script>
+</body>
+
+</html>
