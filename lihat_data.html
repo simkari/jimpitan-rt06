@@ -8,6 +8,8 @@
     <!-- Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00796b">
     <style>
         body {
             background-color: #f5f5f5;
@@ -377,6 +379,16 @@
             window.open(`https://wa.me/?text=${teksEncoded}`, '_blank');
         }
     </script>
+    <script>
+  // Mendaftarkan Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('PWA Siap!', reg.scope))
+        .catch(err => console.log('PWA Gagal:', err));
+    });
+  }
+</script>
 </body>
 
 </html>
